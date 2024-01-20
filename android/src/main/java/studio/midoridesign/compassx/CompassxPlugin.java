@@ -1,38 +1,178 @@
 package studio.midoridesign.compassx;
 
-import androidx.annotation.NonNull;
-
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import androidx.core.content.ContextCompat;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry;
+import io.flutter.plugin.common.EventChannel;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 
-/** CompassXPlugin */
-public class CompassXPlugin implements FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private MethodChannel channel;
+public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware {
+    private EventChannel channel;
+    private Context context;
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private Sensor headingSensor;
+    private SensorEventListener sensorEventListener;
+    private LocationManager locationManager;
+    private Location currentLocation;
+    private final LocationListener locationListener;
+    private final float headingChangeThreshold = 0.1f;
+    private float lastTrueHeading = 0f;
+    private Activity activity;
 
-  @Override
-  public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "studio.midoridesign/compassx");
-    channel.setMethodCallHandler(this);
-  }
+    public CompassXPlugin() {
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                currentLocation = location;
+            }
 
-  @Override
-  public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
-    } else {
-      result.notImplemented();
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        };
     }
-  }
 
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    channel.setMethodCallHandler(null);
-  }
+    @Override
+    public void onAttachedToEngine(FlutterPlugin.FlutterPluginBinding flutterPluginBinding) {
+        context = flutterPluginBinding.getApplicationContext();
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        headingSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEADING);
+        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "studio.midoridesign/compassx");
+        channel.setStreamHandler(this);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onDetachedFromEngine(FlutterPlugin.FlutterPluginBinding binding) {
+        unregisterListener();
+        channel.setStreamHandler(null);
+    }
+
+    @Override
+    public void onListen(Object arguments, EventChannel.EventSink events) {
+        sensorEventListener = createSensorEventListener(events);
+        if (headingSensor != null) {
+            sensorManager.registerListener(sensorEventListener, headingSensor, SensorManager.SENSOR_DELAY_GAME);
+        } else if (rotationVectorSensor != null) {
+            sensorManager.registerListener(sensorEventListener, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+        }
+    }
+
+    @Override
+    public void onCancel(Object arguments) {
+        unregisterListener();
+    }
+
+    private void unregisterListener() {
+        sensorManager.unregisterListener(sensorEventListener);
+    }
+
+    private SensorEventListener createSensorEventListener(final EventChannel.EventSink events) {
+        return new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+                    float[] rotationMatrix = new float[9];
+                    SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+                    float[] orientationAngles = new float[3];
+                    SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+                    float azimuth = (float) Math.toDegrees(orientationAngles[0]);
+                    float trueHeading = calculateTrueHeading(azimuth);
+
+                    if (Math.abs(lastTrueHeading - trueHeading) > headingChangeThreshold) {
+                        lastTrueHeading = trueHeading;
+                        notifyCompassChangeListeners(events, trueHeading);
+                    }
+                } else if (event.sensor.getType() == Sensor.TYPE_HEADING) {
+                    float heading = event.values[0];
+                    if (Math.abs(lastTrueHeading - heading) > headingChangeThreshold) {
+                        lastTrueHeading = heading;
+                        notifyCompassChangeListeners(events, heading);
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                if (sensor != rotationVectorSensor && sensor != headingSensor) {
+                    return;
+                }
+                boolean shouldCalibrate = accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH;
+                events.success(shouldCalibrate);
+            }
+
+            private float calculateTrueHeading(float azimuth) {
+                float declination = currentLocation != null ? new GeomagneticField(
+                        (float) currentLocation.getLatitude(),
+                        (float) currentLocation.getLongitude(),
+                        (float) currentLocation.getAltitude(),
+                        System.currentTimeMillis()).getDeclination() : 0f;
+
+                float trueHeading = (azimuth + declination + 360) % 360;
+                return trueHeading;
+            }
+
+            private void notifyCompassChangeListeners(EventChannel.EventSink events, float heading) {
+                events.success(heading);
+            }
+        };
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+        binding.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
+            @Override
+            public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                if (permissions.length > 0 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                        grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startLocationUpdates();
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        onAttachedToActivity(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity();
+    }
+
+    private void startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f, locationListener);
+        }
+    }
 }
