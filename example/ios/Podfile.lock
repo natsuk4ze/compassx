@@ -1,0 +1,22 @@
+PODS:
+  - compassx (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - compassx (from `.symlinks/plugins/compassx/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  compassx:
+    :path: ".symlinks/plugins/compassx/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  compassx: 6abaa865a6241ed744ad53aec8d9241c6719ec60
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+
+PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
+
+COCOAPODS: 1.14.2
