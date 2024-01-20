@@ -1,0 +1,26 @@
+name: compassx
+description: "Compass plugin for Flutter."
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: studio.midoridesign.compassx
+        pluginClass: CompassXPlugin
+      ios:
+        pluginClass: CompassXPlugin
