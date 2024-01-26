@@ -70,3 +70,11 @@ When testing, use the actual device for testing. The emulator may not provide co
 **If you are going to use this plugin in your product apps, I strongly suggest you read [wiki](https://github.com/natsuk4ze/compassx/wiki) carefully**.  
 More information about compasses in general and calibration in particular can be found on it.  
 Please be sure to read the documentation before submitting an issue.
+
+**CompassX `heading` currently supports only portrait mode. It is recommended to fix the orientation of the device.**
+```dart
+SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+```

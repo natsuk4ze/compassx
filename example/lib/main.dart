@@ -2,11 +2,19 @@ import 'dart:io';
 
 import 'package:compassx/compassx.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 import 'package:permission_handler/permission_handler.dart';
 
-void main() => runApp(const App());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  runApp(const App());
+}
 
 class App extends StatelessWidget {
   const App({super.key});
