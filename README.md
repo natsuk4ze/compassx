@@ -37,6 +37,10 @@ StreamBuilder<CompassXEvent>(
 
 ## Install
 
+```console
+$ flutter pub add compassx
+```
+
 Check the minimum supported version of your project and update as necessary.
 - **iOS: 12**
 - **Android: 21**
