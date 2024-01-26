@@ -45,7 +45,7 @@ Request permission to get true heading in Android. Not required on iOS.
 ```console
 $ flutter pub add permission_handler
 ```
-Specify the permissions one or both of the following in AndroidManifest.xml.
+Specify the permissions one or both of the following in *AndroidManifest.xml*.
 It can be copied from [exmaple](https://github.com/natsuk4ze/compassx/blob/main/example/android/app/src/main/AndroidManifest.xml).
 ```xml
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
