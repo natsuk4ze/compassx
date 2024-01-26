@@ -2,7 +2,7 @@
 
 ![Logo](assets/logo.png)
 
-Provides reliable compass data and extensive [documentation](https://github.com/natsuk4ze/compassx/wiki).
+### Provides reliable compass data and extensive [documentation](https://github.com/natsuk4ze/compassx/wiki).
 
 ## Usage
 
