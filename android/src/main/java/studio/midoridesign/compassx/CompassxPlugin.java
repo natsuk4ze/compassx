@@ -192,6 +192,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Since this location is used for GeomagneticField, it is acceptable to update it less
+            // frequently.
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f,
                     locationListener);
         }
