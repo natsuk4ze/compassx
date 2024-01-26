@@ -14,21 +14,18 @@ class App extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              StreamBuilder<double>(
-                  stream: CompassX.heading,
+              StreamBuilder<CompassXEvent>(
+                  stream: CompassX.events,
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Text('No data');
-                    }
-                    return Text('Heading: ${snapshot.data}');
-                  }),
-              StreamBuilder<bool>(
-                  stream: CompassX.shouldCalibrate,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Text('No data');
-                    }
-                    return Text('Should calibrate: ${snapshot.data}');
+                    if (!snapshot.hasData) return const Text('No data');
+                    final compass = snapshot.data!;
+                    return Column(
+                      children: [
+                        Text('Heading: ${compass.heading}'),
+                        Text('Accuracy: ${compass.accuracy}'),
+                        Text('Should calibrate: ${compass.shouldCalibrate}'),
+                      ],
+                    );
                   }),
             ],
           ),
