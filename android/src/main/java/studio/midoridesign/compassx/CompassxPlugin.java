@@ -163,10 +163,12 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
                     @Override
                     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
                             int[] grantResults) {
-                        if (permissions.length > 0
-                                && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)
-                                && grantResults.length > 0
-                                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        if (permissions.length == 0 || grantResults.length == 0) return false;
+                        String permission = permissions[0];
+                        int grantResult = grantResults[0];
+                        if ((permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)
+                                || permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION))
+                                && grantResult == PackageManager.PERMISSION_GRANTED) {
                             startLocationUpdates();
                         }
                         return false;
@@ -190,12 +192,16 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     }
 
     private void startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // Since this location is used for GeomagneticField, it is acceptable to update it less
-            // frequently.
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f,
-                    locationListener);
-        }
+        boolean hasFineLocation = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean hasCoarseLocation = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        if (!hasFineLocation && !hasCoarseLocation) return;
+
+        // Since this location is used for GeomagneticField, it is acceptable to update it less
+        // frequently.
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f,
+                locationListener);
     }
 }
