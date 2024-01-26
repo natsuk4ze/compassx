@@ -1,6 +1,6 @@
 name: compassx_example
 description: "Demonstrates how to use the compassx plugin."
-version: 0.0.1
+version: 0.0.2
 publish_to: none
 
 environment:
