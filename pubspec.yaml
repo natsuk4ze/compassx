@@ -1,5 +1,5 @@
 name: compassx
-description: "Compass plugin for Flutter."
+description: "Flutter compass plugin offering true heading, accuracy, and calibration needs."
 version: 0.0.1
 homepage: https://pub.dev/packages/compassx
 repository: https://github.com/natsuk4ze/compassx
@@ -13,7 +13,6 @@ topics:
  - heading
  - north
  - calibration
-
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
