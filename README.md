@@ -38,8 +38,8 @@ StreamBuilder<CompassXEvent>(
 ## Install
 
 Check the minimum supported version of your project and update as necessary.
-- iOS: 12
-- Android: 21
+- **iOS: 12**
+- **Android: 21**
 
 Request permission to get true heading in Android. Not required on iOS.
 ```console
@@ -51,8 +51,8 @@ It can be copied from [exmaple](https://github.com/natsuk4ze/compassx/blob/main/
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
-- ACCESS_COARSE_LOCATION: Used when normal accuracy is required.
-- ACCESS_FINE_LOCATION: Used when the highest quality accuracy is required.
+- `ACCESS_COARSE_LOCATION`: Used when normal accuracy is required.
+- `ACCESS_FINE_LOCATION`: Used when the highest quality accuracy is required.
 
 Add code to request premissions.
 ```dart
