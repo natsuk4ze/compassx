@@ -10,6 +10,7 @@ dependencies:
 
   compassx:
     path: ../
+  permission_handler: ^11.2.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
