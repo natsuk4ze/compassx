@@ -18,6 +18,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import java.util.HashMap;
 
 public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware {
     private EventChannel channel;
@@ -41,12 +42,10 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
             }
 
             @Override
-            public void onProviderEnabled(String provider) {
-            }
+            public void onProviderEnabled(String provider) {}
 
             @Override
-            public void onProviderDisabled(String provider) {
-            }
+            public void onProviderDisabled(String provider) {}
         };
     }
 
@@ -56,7 +55,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         headingSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEADING);
-        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "studio.midoridesign/compassx");
+        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
+                "studio.midoridesign/compassx");
         channel.setStreamHandler(this);
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         startLocationUpdates();
@@ -72,9 +72,11 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     public void onListen(Object arguments, EventChannel.EventSink events) {
         sensorEventListener = createSensorEventListener(events);
         if (headingSensor != null) {
-            sensorManager.registerListener(sensorEventListener, headingSensor, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(sensorEventListener, headingSensor,
+                    SensorManager.SENSOR_DELAY_GAME);
         } else if (rotationVectorSensor != null) {
-            sensorManager.registerListener(sensorEventListener, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(sensorEventListener, rotationVectorSensor,
+                    SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -89,6 +91,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
 
     private SensorEventListener createSensorEventListener(final EventChannel.EventSink events) {
         return new SensorEventListener() {
+            boolean shouldCalibrate = false;
+
             @Override
             public void onSensorChanged(SensorEvent event) {
                 if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
@@ -99,42 +103,54 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
 
                     float azimuth = (float) Math.toDegrees(orientationAngles[0]);
                     float trueHeading = calculateTrueHeading(azimuth);
+                    float accuracyRadian = event.values[4];
+                    float accuracy =
+                            accuracyRadian != -1 ? (float) Math.toDegrees(accuracyRadian) : -1;
 
                     if (Math.abs(lastTrueHeading - trueHeading) > headingChangeThreshold) {
                         lastTrueHeading = trueHeading;
-                        notifyCompassChangeListeners(events, trueHeading);
+                        notifyCompassChangeListeners(events, trueHeading, accuracy,
+                                shouldCalibrate);
                     }
                 } else if (event.sensor.getType() == Sensor.TYPE_HEADING) {
                     float heading = event.values[0];
+                    float accuracy = event.values[1];
                     if (Math.abs(lastTrueHeading - heading) > headingChangeThreshold) {
                         lastTrueHeading = heading;
-                        notifyCompassChangeListeners(events, heading);
+                        notifyCompassChangeListeners(events, heading, accuracy, shouldCalibrate);
                     }
                 }
             }
 
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                if (sensor != rotationVectorSensor && sensor != headingSensor) {
-                    return;
-                }
-                boolean shouldCalibrate = accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH;
-                events.success(shouldCalibrate);
+                if (sensor != rotationVectorSensor && sensor != headingSensor) return;
+                shouldCalibrate = accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH;
             }
 
             private float calculateTrueHeading(float azimuth) {
-                float declination = currentLocation != null ? new GeomagneticField(
-                        (float) currentLocation.getLatitude(),
-                        (float) currentLocation.getLongitude(),
-                        (float) currentLocation.getAltitude(),
-                        System.currentTimeMillis()).getDeclination() : 0f;
+                float declination =
+                        currentLocation != null
+                                ? new GeomagneticField((float) currentLocation.getLatitude(),
+                                        (float) currentLocation.getLongitude(),
+                                        (float) currentLocation.getAltitude(),
+                                        System.currentTimeMillis()).getDeclination()
+                                : 0f;
 
                 float trueHeading = (azimuth + declination + 360) % 360;
                 return trueHeading;
             }
 
-            private void notifyCompassChangeListeners(EventChannel.EventSink events, float heading) {
-                events.success(heading);
+            private void notifyCompassChangeListeners(EventChannel.EventSink events, float heading,
+                    float accuracy, boolean shouldCalibrate) {
+                events.success(new HashMap<String, Object>() {
+                    {
+                        put("heading", heading);
+                        put("accuracy", accuracy);
+                        put("shouldCalibrate", shouldCalibrate);
+                    }
+                });
+
             }
         };
     }
@@ -142,16 +158,20 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
         activity = binding.getActivity();
-        binding.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
-            @Override
-            public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-                if (permissions.length > 0 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
-                        grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startLocationUpdates();
-                }
-                return false;
-            }
-        });
+        binding.addRequestPermissionsResultListener(
+                new PluginRegistry.RequestPermissionsResultListener() {
+                    @Override
+                    public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
+                            int[] grantResults) {
+                        if (permissions.length > 0
+                                && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)
+                                && grantResults.length > 0
+                                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                            startLocationUpdates();
+                        }
+                        return false;
+                    }
+                });
     }
 
     @Override
@@ -172,7 +192,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000L, 10f,
+                    locationListener);
         }
     }
 }
