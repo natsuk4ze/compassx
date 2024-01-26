@@ -1,6 +1,5 @@
 name: compassx_example
 description: "Demonstrates how to use the compassx plugin."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -13,6 +12,6 @@ dependencies:
     path: ../
 
 dev_dependencies:
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.1
 flutter:
   uses-material-design: true
