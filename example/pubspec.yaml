@@ -12,6 +12,7 @@ dependencies:
 
   compassx:
     path: ../
+    version: 0.0.2
   permission_handler: ^11.2.0
 
 dev_dependencies:
