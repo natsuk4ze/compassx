@@ -1,6 +1,6 @@
 # CompassX
 
-![Logo](assets/logo.png)
+![Logo](https://github.com/natsuk4ze/compassx/raw/main/assets/logo.png)
 
 ### Provides reliable compass data and extensive [documentation](https://github.com/natsuk4ze/compassx/wiki).
 
