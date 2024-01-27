@@ -76,9 +76,9 @@ SystemChrome.setPreferredOrientations([
 
 ## Documentation
 
-**If you are going to use this plugin in your product apps, I strongly suggest you read [wiki](https://github.com/natsuk4ze/compassx/wiki) carefully**.  
+**If you are going to use this plugin in your product apps, I strongly suggest you read [full documentation](https://github.com/natsuk4ze/compassx/wiki) carefully**.  
 When testing, use the actual device for testing. The emulator may not provide correct sensor data.  
 
+- [Testing CompassX](https://github.com/natsuk4ze/compassx/wiki#checking-the-accuracy-of-compassx)
 - [True Heading vs Magnetic Heading](https://github.com/natsuk4ze/compassx/wiki#true-heading)
 - [How to calibrate your device's compass](https://github.com/natsuk4ze/compassx/wiki#calibration)
-- [Testing CompassX](https://github.com/natsuk4ze/compassx/wiki#checking-the-accuracy-of-compassx)
