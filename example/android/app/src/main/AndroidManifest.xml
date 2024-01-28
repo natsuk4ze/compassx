@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- CompassX: Used to get true heading If not included, magnetic heading is obtained. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- CompassX: Used to get true heading If not included, magnetic heading is obtained. -->
     <application
         android:label="compassx_example"
         android:name="${applicationName}"
