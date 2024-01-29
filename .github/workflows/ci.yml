@@ -1,0 +1,52 @@
+# Runner details on https://github.com/actions/runner-images/tree/main/images
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  set-up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel
+        uses: styfle/cancel-workflow-action@0.12.0
+        with:
+          access_token: ${{ github.token }}
+
+  ios:
+    needs: set-up
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        ios-version: [16,17]
+      fail-fast: false
+    runs-on: macos-13
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Boot ios simulator
+        uses: futureware-tech/simulator-action@v3
+        with:
+          model: iPhone 14 Pro Max
+          os_version: ^${{ matrix.ios-version }}
+
+      - name: Build example
+        timeout-minutes: 20
+        run: |
+          cd example
+          flutter run
+
+      #TODO: Integration tests
+
+    #TODO: Android
