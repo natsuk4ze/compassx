@@ -45,7 +45,7 @@ jobs:
         timeout-minutes: 20
         run: |
           cd example
-          flutter build ios
+          flutter build ios --no-codesign
 
       #TODO: Integration tests
 
