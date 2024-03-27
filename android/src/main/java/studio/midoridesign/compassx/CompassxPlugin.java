@@ -77,6 +77,9 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
         } else if (rotationVectorSensor != null) {
             sensorManager.registerListener(sensorEventListener, rotationVectorSensor,
                     SensorManager.SENSOR_DELAY_GAME);
+        } else {
+            events.error("SENSOR_NOT_FOUND", "No compass sensor found.", null);
+            events.endOfStream();
         }
     }
 

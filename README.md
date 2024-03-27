@@ -50,7 +50,7 @@ Request permission to get true heading in Android. Not required on iOS.
 $ flutter pub add permission_handler
 ```
 Specify the permissions one or both of the following in *AndroidManifest.xml*.
-It can be copied from [exmaple](https://github.com/natsuk4ze/compassx/blob/main/example/android/app/src/main/AndroidManifest.xml).
+It can be copied from [example](https://github.com/natsuk4ze/compassx/blob/main/example/android/app/src/main/AndroidManifest.xml).
 ```xml
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -58,10 +58,9 @@ It can be copied from [exmaple](https://github.com/natsuk4ze/compassx/blob/main/
 - `ACCESS_COARSE_LOCATION`: Used when normal accuracy is required.
 - `ACCESS_FINE_LOCATION`: Used when the highest quality accuracy is required.
 
-Add code to request premissions.
+Add code to request permissions.
 ```dart
-if (!Platform.isAndroid) return;
-await Permission.location.request();
+if (Platform.isAndroid) await Permission.location.request();
 ```
 
 ## Precautions

@@ -10,5 +10,8 @@ final class CompassX {
   const CompassX._();
 
   /// [CompassXEvent] stream for using the compass sensor.
+  ///
+  /// Throws [CompassXException] for older or excessively cheap Android devices 
+  /// that do not have a compass sensor.
   static Stream<CompassXEvent> get events => CompassXPlatform.events;
 }

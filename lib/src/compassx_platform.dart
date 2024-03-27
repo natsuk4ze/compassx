@@ -1,4 +1,5 @@
 import 'package:compassx/src/compassx_event.dart';
+import 'package:compassx/src/compassx_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -14,5 +15,12 @@ final class CompassXPlatform {
   static final _stream = _channel.receiveBroadcastStream();
 
   /// CompassXEvent stream for [CompassX].
-  static Stream<CompassXEvent> get events => _stream.map(CompassXEvent.fromMap);
+  static Stream<CompassXEvent> get events =>
+      _stream.map(CompassXEvent.fromMap).handleError(
+            (e, st) => throw CompassXException.fromPlatformException(
+              platformException: e,
+              stackTrace: st,
+            ),
+            test: (e) => e is PlatformException,
+          );
 }
