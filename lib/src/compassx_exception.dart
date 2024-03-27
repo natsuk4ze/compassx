@@ -16,25 +16,22 @@ final class CompassXException implements Exception {
   factory CompassXException.fromPlatformException({
     required PlatformException platformException,
     required StackTrace stackTrace,
-  }) {
-    final type = CompassXExceptionType.values.firstWhere(
-      (type) => type.code == platformException.code,
-      orElse: () => CompassXExceptionType.unexpected,
-    );
-    return CompassXException._(
-      type: type,
-      platformException: platformException,
-      stackTrace: stackTrace,
-    );
-  }
+  }) =>
+      CompassXException._(
+        type: CompassXExceptionType.values.firstWhere(
+          (type) => type.code == platformException.code,
+          orElse: () => CompassXExceptionType.unexpected,
+        ),
+        platformException: platformException,
+        stackTrace: stackTrace,
+      );
 
   @override
   String toString() => "[CompassXException/${type.code}]: ${type.message}";
 }
 
 enum CompassXExceptionType {
-
-  /// This is used for older or excessively cheap Android devices 
+  /// This is used for older or excessively cheap Android devices
   /// that do not have a compass sensor.
   sensorNotFound,
 
