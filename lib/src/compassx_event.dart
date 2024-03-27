@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 /// See the [wiki](https://github.com/natsuk4ze/compassx/wiki) for details.
 @immutable
 final class CompassXEvent {
-  const CompassXEvent({
+  const CompassXEvent._({
     required this.heading,
     required this.accuracy,
     required this.shouldCalibrate,
@@ -41,7 +41,7 @@ final class CompassXEvent {
   final bool shouldCalibrate;
 
   /// Factory for the map data obtained from the stream of [EventChannel].
-  factory CompassXEvent.fromMap(dynamic map) => CompassXEvent(
+  factory CompassXEvent.fromMap(dynamic map) => CompassXEvent._(
         heading: map['heading'] as double,
         accuracy: map['accuracy'] as double,
         shouldCalibrate: map['shouldCalibrate'] as bool,
