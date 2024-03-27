@@ -33,7 +33,13 @@ final class CompassXException implements Exception {
 }
 
 enum CompassXExceptionType {
+
+  /// This is used for older or excessively cheap Android devices 
+  /// that do not have a compass sensor.
   sensorNotFound,
+
+  /// This is used when an unexpected error occurs.
+  /// See [PlatformException] for more information.
   unexpected;
 
   String get code => switch (this) {
