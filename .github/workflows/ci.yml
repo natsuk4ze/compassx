@@ -15,7 +15,7 @@ jobs:
       actions: write
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action
+        uses: styfle/cancel-workflow-action@v0.12
         with:
           access_token: ${{ github.token }}
 
