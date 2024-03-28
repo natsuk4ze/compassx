@@ -11,7 +11,9 @@ final class CompassX {
 
   /// [CompassXEvent] stream for using the compass sensor.
   ///
-  /// Throws [CompassXException] for older or excessively cheap Android devices 
-  /// that do not have a compass sensor.
+  /// Throw [CompassXException] when the compass sensor is not available. 
+  /// That includes the following cases.
+  /// - Older or excessively cheap Android devices.
+  /// - iOS simulators.
   static Stream<CompassXEvent> get events => CompassXPlatform.events;
 }
