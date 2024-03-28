@@ -20,5 +20,6 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  device_info_plus: ^10.0.1
 flutter:
   uses-material-design: true
