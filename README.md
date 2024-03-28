@@ -63,9 +63,7 @@ Add code to request permissions.
 if (Platform.isAndroid) await Permission.location.request();
 ```
 
-## Precautions
-
-**CompassX `heading` currently supports only portrait mode. It is recommended to fix the orientation of the device.**
+CompassX `heading` currently supports only portrait mode. It is recommended to fix the orientation of the device.
 ```dart
 SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -73,11 +71,14 @@ SystemChrome.setPreferredOrientations([
       ]);
 ```
 
+## Testing
+
+**It is recommended to use a real device.** iOS simulators cannot use the heading sensor (compass). See [Testing CompassX](https://github.com/natsuk4ze/compassx/wiki#checking-the-accuracy-of-compassx) for details.
+
+
 ## Documentation
 
-**If you are going to use this plugin in your product apps, I strongly suggest you read [full documentation](https://github.com/natsuk4ze/compassx/wiki) carefully**.  
-When testing, use the actual device for testing. The emulator may not provide correct sensor data.  
+If you are going to use this plugin in your product apps, I strongly suggest you read [full documentation](https://github.com/natsuk4ze/compassx/wiki) carefully.
 
-- [Testing CompassX](https://github.com/natsuk4ze/compassx/wiki#checking-the-accuracy-of-compassx)
 - [True Heading vs Magnetic Heading](https://github.com/natsuk4ze/compassx/wiki#true-heading)
 - [How to calibrate your device's compass](https://github.com/natsuk4ze/compassx/wiki#calibration)

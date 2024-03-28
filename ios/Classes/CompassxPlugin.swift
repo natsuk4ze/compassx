@@ -22,6 +22,11 @@ public class CompassXPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
     public func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         eventSink = events
+        let isHeadingAvailable = CLLocationManager.headingAvailable()
+        if !isHeadingAvailable {
+            eventSink?(FlutterError(code: "SENSOR_NOT_FOUND", message: "No compass sensor found.", details: nil))
+            return nil
+        }
         locationManager.startUpdatingHeading()
         return nil
     }
