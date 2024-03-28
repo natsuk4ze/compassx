@@ -1,0 +1,76 @@
+name: Report a bug
+description: Create a report to help us improve.
+assignees: natsuk4ze
+body:
+  - type: checkboxes
+    attributes:
+      label: Did you check the documentation and it did not help?
+      options:
+      - label: I have read the [README](https://github.com/natsuk4ze/compassx/blob/main/README.md)
+        required: true
+      - label: I have searched the [existing documentation](https://github.com/natsuk4ze/compassx/wiki)
+        required: true      
+      - label: I have read the [contribution guide](https://github.com/natsuk4ze/compassx/blob/main/CONTRIBUTING.md)
+        required: true
+  - type: textarea
+    attributes:
+      label: Overview
+      description: Please clarify what kind of bug it is.
+      placeholder: Description of the bug and paste the file where the error occurred here if necessary.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Please tell us exactly how to reproduce the problem you are running into
+      placeholder: |
+        Steps to reproduce:
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Code sample
+      description: Please create a minimal reproducible sample
+      value: |
+        <details><summary>Code sample</summary>
+
+        ```dart
+        [Paste your code here]
+        ```
+
+        </details>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment
+      description: Please show us your `flutter doctor -v` result.
+      value: |
+        <details><summary>Logs</summary>
+
+        ```console
+        [Paste flutter doctor logs here]
+        ```
+
+        </details>
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Please show the error log.
+      value: |
+        <details><summary>Logs</summary>
+
+        ```console
+        [Paste your logs here]
+        ```
+
+        </details>
+    validations:
+      required: false

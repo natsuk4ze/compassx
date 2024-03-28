@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a new idea.
+assignees: natsuk4ze
+body:
+  - type: checkboxes
+    attributes:
+      label: Did you check the documentation and it did not help?
+      options:
+      - label: I have carefully read the [README](https://github.com/natsuk4ze/compassx/blob/main/README.md)
+        required: true
+      - label: I have carefully searched the [existing documentation](https://github.com/natsuk4ze/compassx/wiki)
+        required: true
+      - label: I have carefully read the [contribution guide](https://github.com/natsuk4ze/compassx/blob/main/CONTRIBUTING.md)
+        required: true
+  - type: textarea
+    attributes:
+      label: Proposal
+      description: |
+        Briefly but precisely describe what you would like compassx to be able to do.
+        Consider attaching code samples showing what you are imagining.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Use case
+      description: |
+        Please tell us the problem you are running into that led to you wanting
+        a new feature.
+
+        Is your feature request related to a problem? Please give a clear and
+        concise description of what the problem is.
+
+        Describe the alternative solutions you've considered. Is there a other 
+        package that already solves this?
+    validations:
+      required: true
