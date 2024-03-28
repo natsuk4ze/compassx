@@ -38,8 +38,8 @@ final class CompassXEvent {
   /// If this value is true, the sensor values are unreliable and should.
   /// See the [wiki](https://github.com/natsuk4ze/compassx/wiki) for
   /// calibration instructions.
-  /// Note that this is not always possible to detect. For use cases where 
-  /// discretion is required, it is recommended to use [accuracy] to set your 
+  /// Note that this is not always possible to detect. For use cases where
+  /// discretion is required, it is recommended to use [accuracy] to set your
   /// own adjustment lines or to prompt for calibration each time.
   final bool shouldCalibrate;
 
