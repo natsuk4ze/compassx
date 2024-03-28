@@ -11,8 +11,10 @@ on:
 jobs:
   set-up:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
-      - name: Cancel
+      - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ github.token }}
@@ -22,9 +24,9 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [16,17]
+        ios-version: [17]
       fail-fast: false
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -38,15 +40,104 @@ jobs:
       - name: Boot ios simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          model: iPhone 14 Pro Max
+          os: iOS
+          model: 'iPhone 15'
           os_version: ^${{ matrix.ios-version }}
 
-      - name: Build example
+      - name: Run Integration Tests
         timeout-minutes: 20
         run: |
           cd example
-          flutter build ios --no-codesign
+          flutter test integration_test/integration_test.dart
 
-      #TODO: Integration tests
+  
+  android:
+    needs: set-up
+    timeout-minutes: 60
+    runs-on: macos-13
+    strategy:
+      matrix:
+        # Api 33 is [currently not available on the macos-13 runner](https://github.com/ReactiveCircus/android-emulator-runner/issues/340)
+        api-level: [34,32,31,30,29,28,27,26,25,24,23]
+      fail-fast: false
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+     
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+     
+      - name: Install Flutter dependencies
+        run: flutter pub get ./example
+     
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+          
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle
+        
+      - name: Cache AVD
+        uses: actions/cache@v4
+        id: cache-avd
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+     
+      - name: Run Integration Tests
+        id: Run-Integration-Tests
+        continue-on-error: true
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 200
+          disable-spellchecker: true
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: flutter test integration_test/integration_test.dart
 
-    #TODO: Android
+      - name: Retry Integration Tests
+        id: Retry-Integration-Tests
+        if: steps.Run-Integration-Tests.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 200
+          disable-spellchecker: true
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: |
+            flutter clean && flutter pub get
+            flutter test integration_test/integration_test.dart
+
+      - name: Re:Retry Integration Tests
+        if: steps.Retry-integration-tests.outcome == 'failure'
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 200
+          disable-spellchecker: true
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: |
+            flutter clean && flutter pub get
+            flutter test integration_test/integration_test.dart
