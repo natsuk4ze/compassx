@@ -2,12 +2,15 @@ PODS:
   - compassx (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - permission_handler_apple (9.1.1):
+  - integration_test (0.0.1):
+    - Flutter
+  - permission_handler_apple (9.3.0):
     - Flutter
 
 DEPENDENCIES:
   - compassx (from `.symlinks/plugins/compassx/ios`)
   - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
 
 EXTERNAL SOURCES:
@@ -15,14 +18,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/compassx/ios"
   Flutter:
     :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
 
 SPEC CHECKSUMS:
   compassx: 6abaa865a6241ed744ad53aec8d9241c6719ec60
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  integration_test: 13825b8a9334a850581300559b8839134b124670
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
 
 PODFILE CHECKSUM: 4e8f8b2be68aeea4c0d5beb6ff1e79fface1d048
 
-COCOAPODS: 1.14.2
+COCOAPODS: 1.15.2

@@ -44,11 +44,11 @@ jobs:
           model: 'iPhone 15'
           os_version: ^${{ matrix.ios-version }}
 
-      - name: Flutter Run
+      - name: Run Integration Tests
         timeout-minutes: 20
         run: |
           cd example
-          flutter run
+          flutter test integration_test/integration_test.dart
 
   
   android:
@@ -92,7 +92,7 @@ jobs:
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
      
-      - name: Flutter Run
+      - name: Run Integration Tests
         timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -103,4 +103,4 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: flutter run
+          script: flutter test integration_test/integration_test.dart
