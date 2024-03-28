@@ -29,7 +29,8 @@ class App extends StatelessWidget {
             child: StreamBuilder<CompassXEvent>(
               stream: CompassX.events,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Text('No data');
+                if (snapshot.hasError) return Text(snapshot.error.toString());
+                if (!snapshot.hasData) return const CircularProgressIndicator();
                 final compass = snapshot.data!;
                 return Column(
                   mainAxisSize: MainAxisSize.min,
