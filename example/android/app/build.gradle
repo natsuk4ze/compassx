@@ -34,7 +34,7 @@ android {
 
     defaultConfig {
         applicationId "studio.midoridesign.compassx_example"
-        minSdk 21
+        minSdk 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
