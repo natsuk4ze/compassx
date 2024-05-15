@@ -12,6 +12,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle; 
 import androidx.core.content.ContextCompat;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.PluginRegistry;
@@ -40,6 +41,9 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
             public void onLocationChanged(Location location) {
                 currentLocation = location;
             }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
 
             @Override
             public void onProviderEnabled(String provider) {}
