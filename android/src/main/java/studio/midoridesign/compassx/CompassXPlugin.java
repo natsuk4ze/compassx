@@ -1,6 +1,7 @@
 package studio.midoridesign.compassx;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
