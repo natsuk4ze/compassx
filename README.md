@@ -43,7 +43,7 @@ $ flutter pub add compassx
 
 Check the minimum supported version of your project and update as necessary.
 - **iOS: 12**
-- **Android: 23**
+- **Android: 21**
 
 Request permission to get true heading in Android. Not required on iOS.
 ```console
