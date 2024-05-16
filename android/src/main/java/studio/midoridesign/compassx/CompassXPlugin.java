@@ -42,6 +42,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
                 currentLocation = location;
             }
 
+            @SuppressWarnings({"deprecation", "RedundantSuppression"})
+            @TargetApi(28)
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {}
 
