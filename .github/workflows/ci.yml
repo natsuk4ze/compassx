@@ -45,9 +45,19 @@ jobs:
           os_version: ^${{ matrix.ios-version }}
 
       - name: Run Integration Tests
-        timeout-minutes: 20
+        id: Run-Integration-Tests
+        timeout-minutes: 15
         run: |
           cd example
+          flutter test integration_test/integration_test.dart
+
+      - name: Retry integration tests
+        timeout-minutes: 15
+        if: steps.Run-Integration-Tests.outcome == 'failure'
+        run: |
+          flutter clean && flutter pub get
+          cd example
+          flutter clean && flutter pub get
           flutter test integration_test/integration_test.dart
 
   
