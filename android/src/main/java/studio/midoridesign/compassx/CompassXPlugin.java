@@ -36,7 +36,7 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     private Location currentLocation;
     private final LocationListener locationListener;
     private final float headingChangeThreshold = 0.1f;
-    private float lastTrueHeading = 0f;
+    private float lastTrueHeading = (float) (headingChangeThreshold * -1 - 0.1);
     private Activity activity;
 
     public CompassXPlugin() {
