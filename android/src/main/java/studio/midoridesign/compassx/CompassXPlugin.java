@@ -26,6 +26,9 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     private EventChannel channel;
     private Context context;
     private SensorManager sensorManager;
+    private Sensor gravitySensor;
+    private float[] gravityValues = new float[3];
+    private Sensor magneticFieldSensor;
     private Sensor rotationVectorSensor;
     private Sensor headingSensor;
     private SensorEventListener sensorEventListener;
@@ -60,6 +63,8 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
     public void onAttachedToEngine(FlutterPlugin.FlutterPluginBinding flutterPluginBinding) {
         context = flutterPluginBinding.getApplicationContext();
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         headingSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEADING);
         channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
@@ -84,6 +89,11 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
         } else if (rotationVectorSensor != null) {
             sensorManager.registerListener(sensorEventListener, rotationVectorSensor,
                     SensorManager.SENSOR_DELAY_GAME);
+        } else if (gravitySensor != null && magneticFieldSensor != null) {
+            sensorManager.registerListener(sensorEventListener, gravitySensor,
+                    SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(sensorEventListener, magneticFieldSensor,
+                    SensorManager.SENSOR_DELAY_GAME);
         } else {
             events.error("SENSOR_NOT_FOUND", "No compass sensor found.", null);
             events.endOfStream();
@@ -105,17 +115,27 @@ public class CompassXPlugin implements FlutterPlugin, EventChannel.StreamHandler
 
             @Override
             public void onSensorChanged(SensorEvent event) {
-                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    System.arraycopy(event.values, 0, gravityValues, 0, event.values.length);
+                } else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR || event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                     float[] rotationMatrix = new float[9];
-                    SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
                     float[] orientationAngles = new float[3];
+                    float accuracy = -1;
+                    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+                        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+                        float accuracyRadian = event.values[4];
+                        accuracy =
+                                accuracyRadian != -1 ? (float) Math.toDegrees(accuracyRadian) : -1;
+                    } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                        float[] values = new float[3];
+                        System.arraycopy(event.values, 0, values, 0, event.values.length);
+                        SensorManager.getRotationMatrix(rotationMatrix, null, gravityValues, values);
+                        accuracy = event.accuracy;
+                    }
                     SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
                     float azimuth = (float) Math.toDegrees(orientationAngles[0]);
                     float trueHeading = calculateTrueHeading(azimuth);
-                    float accuracyRadian = event.values[4];
-                    float accuracy =
-                            accuracyRadian != -1 ? (float) Math.toDegrees(accuracyRadian) : -1;
 
                     if (Math.abs(lastTrueHeading - trueHeading) > headingChangeThreshold) {
                         lastTrueHeading = trueHeading;
